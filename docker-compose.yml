@@ -1,0 +1,36 @@
+version: '3.6'
+# `TAG` currently is 6.3.2
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    environment:
+      ELASTIC_VERSION: ${TAG}
+      ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+      VIRTUAL_HOST: es.docker
+      VIRTUAL_PORT: 9200
+    image: docker.elastic.co/elasticsearch/elasticsearch:${TAG}
+    network_mode: bridge
+    restart: on-failure
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./esdata:/usr/share/elasticsearch/data
+  kibana:
+    container_name: kibana
+    environment:
+      ELASTIC_VERSION: ${TAG}
+      VIRTUAL_HOST: kibana.docker
+      VIRTUAL_PORT: 5601
+    image: docker.elastic.co/kibana/kibana:${TAG}
+    network_mode: bridge
+    restart: on-failure
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+    volumes:
+      - ./config/kibana.yml:/usr/share/kibana/config/kibana.yml
+      
